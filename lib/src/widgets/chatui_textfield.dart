@@ -155,7 +155,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
               children: [
                 if (!isRecording) ...[
                   IconButton(
-                    onPressed: () => !Platform.isIOS
+                    onPressed: () => Platform.isIOS
                         ? cupertinoImageSelector()
                         : androidImageSelector(),
                     icon: CircleAvatar(
@@ -271,6 +271,9 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
                       'Camera',
                       style: imagePickerConfig?.textStyle,
                     ),
+                  ),
+                  const SizedBox(
+                    width: 10,
                   ),
                   TextButton(
                     onPressed: () => _onIconPressed(ImageSource.gallery).then(
