@@ -42,6 +42,7 @@ class ChatViewAppBar extends StatelessWidget {
     this.padding,
     this.leading,
     this.showLeading = true,
+    this.profileWidget,
   }) : super(key: key);
 
   /// Allow user to change colour of appbar.
@@ -80,6 +81,9 @@ class ChatViewAppBar extends StatelessWidget {
   /// Allow user to change leading icon of appbar.
   final Widget? leading;
 
+  /// Allow user to change leading icon of appbar.
+  final Widget? profileWidget;
+
   /// Allow user to turn on/off leading icon.
   final bool showLeading;
 
@@ -110,12 +114,12 @@ class ChatViewAppBar extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  if (profilePicture != null)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: CircleAvatar(
-                          backgroundImage: NetworkImage(profilePicture!)),
-                    ),
+                  profileWidget ??
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: CircleAvatar(
+                            backgroundImage: NetworkImage(profilePicture!)),
+                      ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
