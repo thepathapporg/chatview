@@ -158,12 +158,36 @@ class ReplyMessageWidget extends StatelessWidget {
                                           ),
                                       ],
                                     )
-                                  : Text(
-                                      replyMessage,
-                                      style: repliedMessageConfig?.textStyle ??
-                                          textTheme.bodyMedium!
-                                              .copyWith(color: Colors.black),
-                                    ),
+                                  : message.replyMessage.messageType.isCustom
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            repliedMessageConfig
+                                                    ?.fileIconWidget ??
+                                                const Icon(
+                                                  Icons.file_open,
+                                                  color: Colors.white,
+                                                ),
+                                            Text(
+                                              replyMessage.split("/").last,
+                                              style: repliedMessageConfig
+                                                      ?.textStyle ??
+                                                  textTheme.bodyMedium!
+                                                      .copyWith(
+                                                          color: Colors.black),
+                                            ),
+                                          ],
+                                        )
+                                      : Text(
+                                          replyMessage,
+                                          style: repliedMessageConfig
+                                                  ?.textStyle ??
+                                              textTheme.bodyMedium!.copyWith(
+                                                  color: Colors.black),
+                                        ),
                             ),
                     ),
                   ),
