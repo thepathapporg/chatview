@@ -237,17 +237,35 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
                                                 ),
                                               ],
                                             )
-                                          : Text(
-                                              _replyMessage.message,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: widget.sendMessageConfig
-                                                        ?.replyMessageColor ??
-                                                    Colors.black,
-                                              ),
-                                            ),
+                                          : _replyMessage.messageType.isCustom
+                                              ? Text(
+                                                  _replyMessage.message
+                                                      .split('/')
+                                                      .last,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: widget
+                                                            .sendMessageConfig
+                                                            ?.replyMessageColor ??
+                                                        Colors.black,
+                                                  ),
+                                                )
+                                              : Text(
+                                                  _replyMessage.message,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: widget
+                                                            .sendMessageConfig
+                                                            ?.replyMessageColor ??
+                                                        Colors.black,
+                                                  ),
+                                                ),
                                 ],
                               ),
                             ),
