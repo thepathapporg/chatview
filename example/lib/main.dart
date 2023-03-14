@@ -71,6 +71,14 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ChatView(
+        featureActiveConfig: const FeatureActiveConfig(
+          enableDoubleTapToLike: false,
+          enableReactionPopup: false,
+          enableOtherUserProfileAvatar: false,
+          enablePagination: false,
+          enableReplySnackBar: false,
+          enableSwipeToReply: false,
+        ),
         currentUser: currentUser,
         chatController: _chatController,
         onSendTap: _onSendTap,

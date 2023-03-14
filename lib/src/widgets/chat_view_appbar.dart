@@ -43,6 +43,7 @@ class ChatViewAppBar extends StatelessWidget {
     this.leading,
     this.showLeading = true,
     this.profileWidget,
+    this.bottom,
   }) : super(key: key);
 
   /// Allow user to change colour of appbar.
@@ -87,65 +88,73 @@ class ChatViewAppBar extends StatelessWidget {
   /// Allow user to turn on/off leading icon.
   final bool showLeading;
 
+  /// A widget that occupies the bottem of the app bar
+  final Widget? bottom;
+
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: elevation ?? 1,
-      child: Container(
-        padding: padding ??
-            EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 10,
-              bottom: 20,
-            ),
-        color: backGroundColor ?? Colors.white,
-        child: Row(
-          children: [
-            if (showLeading)
-              leading ??
-                  IconButton(
-                    onPressed: onBackPress ?? () => Navigator.pop(context),
-                    icon: Icon(
-                      (!kIsWeb && Platform.isIOS)
-                          ? Icons.arrow_back_ios
-                          : Icons.arrow_back,
-                      color: backArrowColor,
-                    ),
-                  ),
-            Expanded(
-              child: Row(
-                children: [
-                  profileWidget ??
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: CircleAvatar(
-                            backgroundImage: NetworkImage(profilePicture!)),
-                      ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        chatTitle,
-                        style: chatTitleTextStyle ??
-                            const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.25,
-                            ),
-                      ),
-                      if (userStatus != null)
-                        Text(
-                          userStatus!,
-                          style: userStatusTextStyle,
+    return Column(
+      children: [
+        Material(
+          elevation: elevation ?? 1,
+          child: Container(
+            padding: padding ??
+                EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 10,
+                  bottom: 20,
+                ),
+            color: backGroundColor ?? Colors.white,
+            child: Row(
+              children: [
+                if (showLeading)
+                  leading ??
+                      IconButton(
+                        onPressed: onBackPress ?? () => Navigator.pop(context),
+                        icon: Icon(
+                          (!kIsWeb && Platform.isIOS)
+                              ? Icons.arrow_back_ios
+                              : Icons.arrow_back,
+                          color: backArrowColor,
                         ),
+                      ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      profileWidget ??
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: CircleAvatar(
+                                backgroundImage: NetworkImage(profilePicture!)),
+                          ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            chatTitle,
+                            style: chatTitleTextStyle ??
+                                const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.25,
+                                ),
+                          ),
+                          if (userStatus != null)
+                            Text(
+                              userStatus!,
+                              style: userStatusTextStyle,
+                            ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                if (actions != null) ...actions!,
+              ],
             ),
-            if (actions != null) ...actions!,
-          ],
+          ),
         ),
-      ),
+        bottom ?? const SizedBox.shrink()
+      ],
     );
   }
 }
