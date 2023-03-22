@@ -215,6 +215,9 @@ class _ChatListWidgetState extends State<ChatListWidget>
             ],
           ),
         ),
+        SizedBox(
+          height: 40, //made changes added box to give space
+        )
       ],
     );
   }
