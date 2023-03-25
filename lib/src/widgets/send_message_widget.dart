@@ -120,9 +120,9 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
                     color: widget.sendMessageConfig?.textFieldBackgroundColor ??
                         Colors.white,
                     padding: EdgeInsets.fromLTRB(
-                      bottomPadding4 + 12,
+                      bottomPadding4 + 2,
                       bottomPadding4,
-                      bottomPadding4 + 12,
+                      bottomPadding4 + 3,
                       _bottomPadding + 15,
                     ),
                     child: Stack(

@@ -101,7 +101,7 @@ class ChatViewAppBar extends StatelessWidget {
             padding: padding ??
                 EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top + 10,
-                  bottom: 20,
+                  bottom: 8, // made changes  to this
                 ),
             color: backGroundColor ?? Colors.white,
             child: Row(
