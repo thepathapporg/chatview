@@ -387,6 +387,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
         widget.onImageSelected(json.encode(imagePaths), '');
       } else {
         final images = await _imagePicker.pickMultiImage();
+        if (images == null) return;
         for (var image in images) {
           imagePaths.add(image.path);
         }
