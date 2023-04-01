@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import 'dart:convert';
 import 'dart:io' show File, Platform;
 
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -377,9 +378,20 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
 
   Future<void> _onIconPressed(ImageSource imageSource) async {
     Navigator.of(context).pop();
+    List<String> imagePaths = [];
     try {
-      final XFile? image = await _imagePicker.pickImage(source: imageSource);
-      widget.onImageSelected(image?.path ?? '', '');
+      if (imageSource == ImageSource.camera) {
+        final XFile? image = await _imagePicker.pickImage(source: imageSource);
+        if (image == null) return;
+        imagePaths.add(image.path);
+        widget.onImageSelected(json.encode(imagePaths), '');
+      } else {
+        final images = await _imagePicker.pickMultiImage();
+        for (var image in images) {
+          imagePaths.add(image.path);
+        }
+        widget.onImageSelected(json.encode(imagePaths), '');
+      }
     } catch (e) {
       widget.onImageSelected('', e.toString());
     }
