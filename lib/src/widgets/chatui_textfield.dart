@@ -264,9 +264,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
               Row(
                 children: [
                   TextButton(
-                    onPressed: () => _onIconPressed(ImageSource.camera).then(
-                      (_) => Navigator.pop(context),
-                    ),
+                    onPressed: () => _onIconPressed(ImageSource.camera),
                     child: Text(
                       'Camera',
                       style: imagePickerConfig?.textStyle,
@@ -276,9 +274,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
                     width: 10,
                   ),
                   TextButton(
-                    onPressed: () => _onIconPressed(ImageSource.gallery).then(
-                      (_) => Navigator.pop(context),
-                    ),
+                    onPressed: () => _onIconPressed(ImageSource.gallery),
                     child: Text(
                       'Gallery',
                       style: imagePickerConfig?.textStyle,
@@ -318,18 +314,14 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
         ),
         actions: [
           CupertinoActionSheetAction(
-            onPressed: () => _onIconPressed(ImageSource.camera).then(
-              (_) => Navigator.pop(context),
-            ),
+            onPressed: () => _onIconPressed(ImageSource.camera),
             child: Text(
               'Camera',
               style: imagePickerConfig?.textStyle,
             ),
           ),
           CupertinoActionSheetAction(
-            onPressed: () => _onIconPressed(ImageSource.gallery).then(
-              (_) => Navigator.pop(context),
-            ),
+            onPressed: () => _onIconPressed(ImageSource.gallery),
             child: Text(
               'Gallery',
               style: imagePickerConfig?.textStyle,
@@ -384,6 +376,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
   }
 
   Future<void> _onIconPressed(ImageSource imageSource) async {
+    Navigator.of(context).pop();
     try {
       final XFile? image = await _imagePicker.pickImage(source: imageSource);
       widget.onImageSelected(image?.path ?? '', '');
