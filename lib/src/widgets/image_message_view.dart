@@ -99,25 +99,33 @@ class ImageMessageView extends StatelessWidget {
                     borderRadius: imageMessageConfig?.borderRadius ??
                         BorderRadius.circular(14),
                     child: !imageUrl.isUrl
-                        ? Image.file(
-                            File(imageUrl),
-                            fit: BoxFit.fill,
+                        ? Hero(
+                            tag: imageUrl,
+                            child: Image.file(
+                              File(imageUrl),
+                              fit: BoxFit.fill,
+                            ),
                           )
-                        : Image.network(
-                            imageUrl,
-                            fit: BoxFit.fitHeight,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
+                        : Hero(
+                            tag: imageUrl,
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit.fitHeight,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                   ),
                 ),
