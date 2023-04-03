@@ -45,6 +45,12 @@ class ImageMessageConfiguration {
   /// Used for giving border radius of image message.
   final BorderRadius? borderRadius;
 
+  /// Used to set the temporary image while loading
+  Widget? loadingImagePlaceholder;
+
+  /// Used to ser the error image place holder incase image downloading fails
+  Widget? errorImagePlaceholder;
+
   ImageMessageConfiguration({
     this.shareIconConfig,
     this.onTap,
@@ -53,6 +59,8 @@ class ImageMessageConfiguration {
     this.padding,
     this.margin,
     this.borderRadius,
+    this.errorImagePlaceholder,
+    this.loadingImagePlaceholder,
   });
 }
 

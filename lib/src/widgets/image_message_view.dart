@@ -21,6 +21,7 @@
  */
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chatview/src/extensions/extensions.dart';
@@ -105,27 +106,23 @@ class ImageMessageView extends StatelessWidget {
                             height: 168,
                             width: 132,
                           )
-                        : Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: SizedBox.square(
-                                  dimension: 30,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.0,
-                                    color: const Color(0xFF1B998B),
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                                  ),
+                        : CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
                                 ),
-                              );
-                            },
+                              ),
+                            ),
+                            progressIndicatorBuilder: (context, url,
+                                    downloadProgress) =>
+                                imageMessageConfig?.loadingImagePlaceholder ??
+                                const Icon(Icons.person),
+                            errorWidget: (context, url, error) =>
+                                imageMessageConfig?.loadingImagePlaceholder ??
+                                const Icon(Icons.error),
                           ),
                   ),
                 ),
