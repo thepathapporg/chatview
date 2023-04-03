@@ -132,6 +132,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         sendMessageConfig: SendMessageConfiguration(
           imagePickerConfig: ImagePickerConfiguration(
+            textStyle: const TextStyle(
+              fontStyle: FontStyle.normal,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
             cameraIconColor: theme.cameraIconColor,
             galleryIconColor: theme.galleryIconColor,
           ),

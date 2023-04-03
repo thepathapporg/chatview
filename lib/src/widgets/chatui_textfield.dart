@@ -255,54 +255,58 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
   }
 
   void androidImageSelector() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () => _onIconPressed(ImageSource.camera),
-                    child: Text(
-                      'Camera',
-                      style: imagePickerConfig?.textStyle,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  TextButton(
-                    onPressed: () => _onIconPressed(ImageSource.gallery),
-                    child: Text(
-                      'Gallery',
-                      style: imagePickerConfig?.textStyle,
-                    ),
-                  ),
-                ],
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancel',
-                  style:
-                      imagePickerConfig?.textStyle?.copyWith(color: Colors.red),
-                ),
-              ),
-            ],
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(15),
           ),
-        ],
-        titleTextStyle: imagePickerConfig?.textStyle,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Text('Select the image source '),
-          ],
         ),
-      ),
-    );
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        builder: (builder) {
+          return Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                    child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      'Select image source',
+                      style: imagePickerConfig?.textStyle?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    ListTile(
+                      onTap: () => _onIconPressed(ImageSource.camera),
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        '📸 Camera',
+                        style: imagePickerConfig?.textStyle,
+                      ),
+                    ),
+                    ListTile(
+                      onTap: () => _onIconPressed(ImageSource.gallery),
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        '🖼️ Gallery',
+                        style: imagePickerConfig?.textStyle,
+                      ),
+                    ),
+                  ],
+                ))),
+          );
+        });
   }
 
   void cupertinoImageSelector() {
@@ -387,7 +391,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
         widget.onImageSelected(json.encode(imagePaths), '');
       } else {
         final images = await _imagePicker.pickMultiImage();
-        if (images == null) return;
+        if (images.isEmpty) return;
         for (var image in images) {
           imagePaths.add(image.path);
         }
