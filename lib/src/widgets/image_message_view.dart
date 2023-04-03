@@ -93,19 +93,21 @@ class ImageMessageView extends StatelessWidget {
                         left: isMessageBySender ? 0 : 6,
                         bottom: message.reaction.reactions.isNotEmpty ? 15 : 0,
                       ),
-                  height: imageMessageConfig?.height ?? 200,
-                  width: imageMessageConfig?.width ?? 150,
+                  height: imageMessageConfig?.height ?? 168,
+                  width: imageMessageConfig?.width ?? 132,
                   child: ClipRRect(
                     borderRadius: imageMessageConfig?.borderRadius ??
-                        BorderRadius.circular(14),
+                        BorderRadius.circular(5),
                     child: !imageUrl.isUrl
                         ? Image.file(
                             File(imageUrl),
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
+                            height: 168,
+                            width: 132,
                           )
                         : Image.network(
                             imageUrl,
-                            fit: BoxFit.fitHeight,
+                            fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;
                               return Center(
