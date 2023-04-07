@@ -50,6 +50,9 @@ class Message {
 
   /// Provides max duration for recorded voice message.
   Duration? voiceMessageDuration;
+  
+  //manually added, to be able add additional info to the message
+  dynamic extras;
 
   Message({
     this.id = '',
@@ -60,6 +63,7 @@ class Message {
     Reaction? reaction,
     this.messageType = MessageType.text,
     this.voiceMessageDuration,
+    this.extras,
   })  : reaction = reaction ?? Reaction(reactions: [], reactedUserIds: []),
         key = GlobalKey(),
         assert(
@@ -79,6 +83,7 @@ class Message {
         reaction: Reaction.fromJson(json["reaction"]),
         messageType: json["message_type"],
         voiceMessageDuration: json["voice_message_duration"],
+        extras: json["extras"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -90,5 +95,6 @@ class Message {
         'reaction': reaction.toJson(),
         'message_type': messageType,
         'voice_message_duration': voiceMessageDuration,
+        'extras': extras,
       };
 }
