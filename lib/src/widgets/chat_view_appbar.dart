@@ -111,9 +111,7 @@ class ChatViewAppBar extends StatelessWidget {
                       IconButton(
                         onPressed: onBackPress ?? () => Navigator.pop(context),
                         icon: Icon(
-                          (!kIsWeb && Platform.isIOS)
-                              ? Icons.arrow_back_ios
-                              : Icons.arrow_back,
+                          Icons.arrow_back_ios,
                           color: backArrowColor,
                         ),
                       ),
