@@ -123,7 +123,7 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
                       bottomPadding4 + 2,
                       bottomPadding4,
                       bottomPadding4 + 3,
-                      _bottomPadding + 15,
+                      _bottomPadding ,
                     ),
                     child: Stack(
                       alignment: Alignment.bottomCenter,
