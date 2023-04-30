@@ -20,12 +20,15 @@
  * SOFTWARE.
  */
 import 'package:chatview/chatview.dart';
+import 'package:chatview/src/values/enumaration.dart';
 import 'package:chatview/src/widgets/chat_list_widget.dart';
 import 'package:chatview/src/widgets/chatview_state_widget.dart';
 import 'package:chatview/src/widgets/chat_view_inherited_widget.dart';
 
 import 'package:flutter/material.dart';
 
+import 'package:timeago/timeago.dart';
+import '../values/custom_time_messages.dart';
 import 'send_message_widget.dart';
 
 class ChatView extends StatefulWidget {
@@ -104,6 +107,8 @@ class ChatView extends StatefulWidget {
   /// Provides builder which helps you to make custom text field and functionality.
   final ReplyMessageWithReturnWidget? sendMessageBuilder;
 
+  @Deprecated('Use [ChatController.setTypingIndicator]  instead')
+
   /// Allow user to show typing indicator.
   final bool showTypingIndicator;
 
@@ -138,11 +143,12 @@ class ChatView extends StatefulWidget {
 class _ChatViewState extends State<ChatView>
     with SingleTickerProviderStateMixin {
   final GlobalKey<SendMessageWidgetState> _sendMessageKey = GlobalKey();
-  ReplyMessage replyMessage = const ReplyMessage();
+  ValueNotifier<ReplyMessage> replyMessage =
+      ValueNotifier(const ReplyMessage());
 
   ChatController get chatController => widget.chatController;
 
-  bool get showTypingIndicator => widget.showTypingIndicator;
+  // bool get showTypingIndicator => widget.showTypingIndicator;
 
   ChatBackgroundConfiguration get chatBackgroundConfig =>
       widget.chatBackgroundConfig;
@@ -157,6 +163,7 @@ class _ChatViewState extends State<ChatView>
   @override
   void initState() {
     super.initState();
+    setLocaleMessages('en', ReceiptsCustomMessages());
     // Adds current user in users list.
     chatController.chatUsers.add(widget.currentUser);
   }
@@ -164,7 +171,11 @@ class _ChatViewState extends State<ChatView>
   @override
   Widget build(BuildContext context) {
     // Scroll to last message on in hasMessages state.
-    if (showTypingIndicator && chatViewState.hasMessages) {
+    // TODO: Remove this in new versions.
+    // ignore: deprecated_member_use_from_same_package
+    if (widget.showTypingIndicator ||
+        widget.chatController.showTypingIndicator &&
+            chatViewState.hasMessages) {
       chatController.scrollToLastMessage();
     }
     return ChatViewInheritedWidget(
@@ -213,25 +224,32 @@ class _ChatViewState extends State<ChatView>
                       onReloadButtonTap: chatViewStateConfig?.onReloadButtonTap,
                     )
                   else if (chatViewState.hasMessages)
-                    ChatListWidget(
-                      showTypingIndicator: widget.showTypingIndicator,
-                      replyMessage: replyMessage,
-                      chatController: widget.chatController,
-                      chatBackgroundConfig: widget.chatBackgroundConfig,
-                      reactionPopupConfig: widget.reactionPopupConfig,
-                      typeIndicatorConfig: widget.typeIndicatorConfig,
-                      chatBubbleConfig: widget.chatBubbleConfig,
-                      loadMoreData: widget.loadMoreData,
-                      isLastPage: widget.isLastPage,
-                      replyPopupConfig: widget.replyPopupConfig,
-                      loadingWidget: widget.loadingWidget,
-                      messageConfig: widget.messageConfig,
-                      profileCircleConfig: widget.profileCircleConfig,
-                      repliedMessageConfig: widget.repliedMessageConfig,
-                      swipeToReplyConfig: widget.swipeToReplyConfig,
-                      assignReplyMessage: (message) => _sendMessageKey
-                          .currentState
-                          ?.assignReplyMessage(message),
+                    ValueListenableBuilder<ReplyMessage>(
+                      valueListenable: replyMessage,
+                      builder: (_, state, child) {
+                        return ChatListWidget(
+                          /// TODO: Remove this in future releases.
+                          // ignore: deprecated_member_use_from_same_package
+                          showTypingIndicator: widget.showTypingIndicator,
+                          replyMessage: state,
+                          chatController: widget.chatController,
+                          chatBackgroundConfig: widget.chatBackgroundConfig,
+                          reactionPopupConfig: widget.reactionPopupConfig,
+                          typeIndicatorConfig: widget.typeIndicatorConfig,
+                          chatBubbleConfig: widget.chatBubbleConfig,
+                          loadMoreData: widget.loadMoreData,
+                          isLastPage: widget.isLastPage,
+                          replyPopupConfig: widget.replyPopupConfig,
+                          loadingWidget: widget.loadingWidget,
+                          messageConfig: widget.messageConfig,
+                          profileCircleConfig: widget.profileCircleConfig,
+                          repliedMessageConfig: widget.repliedMessageConfig,
+                          swipeToReplyConfig: widget.swipeToReplyConfig,
+                          assignReplyMessage: (message) => _sendMessageKey
+                              .currentState
+                              ?.assignReplyMessage(message),
+                        );
+                      },
                     ),
                   if (featureActiveConfig.enableTextField)
                     SendMessageWidget(
@@ -241,10 +259,9 @@ class _ChatViewState extends State<ChatView>
                       sendMessageConfig: widget.sendMessageConfig,
                       backgroundColor: chatBackgroundConfig.backgroundColor,
                       onSendTap: _onSendTap,
-                      onReplyCallback: (reply) =>
-                          setState(() => replyMessage = reply),
+                      onReplyCallback: (reply) => replyMessage.value = reply,
                       onReplyCloseCallback: () =>
-                          setState(() => replyMessage = const ReplyMessage()),
+                          replyMessage.value = const ReplyMessage(),
                     ),
                 ],
               ),
@@ -270,8 +287,14 @@ class _ChatViewState extends State<ChatView>
   }
 
   void _assignReplyMessage() {
-    if (replyMessage.message.isNotEmpty) {
-      setState(() => replyMessage = const ReplyMessage());
+    if (replyMessage.value.message.isNotEmpty) {
+      replyMessage.value = const ReplyMessage();
     }
+  }
+
+  @override
+  void dispose() {
+    replyMessage.dispose();
+    super.dispose();
   }
 }

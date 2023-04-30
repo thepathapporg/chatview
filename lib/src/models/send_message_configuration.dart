@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:chatview/src/values/enumaration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -46,7 +47,7 @@ class SendMessageConfiguration {
   final Color? closeIconColor;
 
   /// Provides configuration of image picker functionality.
-  final ImagePickerConfiguration? imagePickerConfig;
+  final ImagePickerIconsConfiguration? imagePickerIconsConfig;
 
   /// Provides configuration of text field.
   final TextFieldConfiguration? textFieldConfig;
@@ -60,10 +61,10 @@ class SendMessageConfiguration {
   /// Styling configuration for recorder widget.
   final VoiceRecordingConfiguration? voiceRecordingConfiguration;
 
-  SendMessageConfiguration({
+  const SendMessageConfiguration({
     this.textFieldConfig,
     this.textFieldBackgroundColor,
-    this.imagePickerConfig,
+    this.imagePickerIconsConfig,
     this.defaultSendButtonColor,
     this.sendButtonIcon,
     this.replyDialogColor,
@@ -76,7 +77,7 @@ class SendMessageConfiguration {
   });
 }
 
-class ImagePickerConfiguration {
+class ImagePickerIconsConfiguration {
   /// Provides ability to pass custom gallery image picker icon.
   final Widget? galleryImagePickerIcon;
 
@@ -92,7 +93,7 @@ class ImagePickerConfiguration {
   /// Used to give the text style of the image source selector text widget
   final TextStyle? textStyle;
 
-  ImagePickerConfiguration({
+  ImagePickerIconsConfiguration({
     this.cameraIconColor,
     this.galleryIconColor,
     this.galleryImagePickerIcon,
@@ -136,9 +137,17 @@ class TextFieldConfiguration {
   final List<TextInputFormatter>? inputFormatters;
 
   /// Used to give textCapitalization enums to text field.
-  TextCapitalization? textCapitalization;
+  final TextCapitalization? textCapitalization;
 
-  TextFieldConfiguration({
+  /// Callback when a user starts/stops typing a message by [TypeWriterStatus]
+  final void Function(TypeWriterStatus status)? onMessageTyping;
+
+  /// After typing stopped, the threshold time after which the composing
+  /// status to be changed to [TypeWriterStatus.composed].
+  /// Default is 1 second.
+  final Duration compositionThresholdTime;
+
+  const TextFieldConfiguration({
     this.contentPadding,
     this.maxLines,
     this.borderRadius,
@@ -149,6 +158,8 @@ class TextFieldConfiguration {
     this.margin,
     this.minLines,
     this.textInputType,
+    this.onMessageTyping,
+    this.compositionThresholdTime = const Duration(seconds: 1),
     this.inputFormatters,
     this.textCapitalization,
   });
