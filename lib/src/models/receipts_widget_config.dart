@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+import 'package:chatview/src/values/enumaration.dart';
 import 'package:flutter/cupertino.dart';
 import '../../chatview.dart';
 import '../utils/constants/constants.dart';

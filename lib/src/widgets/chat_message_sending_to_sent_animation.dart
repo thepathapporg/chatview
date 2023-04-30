@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:chatview/chatview.dart';
+import 'package:chatview/src/values/enumaration.dart';
 import 'package:flutter/material.dart';
 
 class SendingMessageAnimatingWidget extends StatefulWidget {
@@ -28,11 +28,6 @@ class _SendingMessageAnimatingWidgetState
         }
       });
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
