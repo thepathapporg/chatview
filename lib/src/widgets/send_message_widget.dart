@@ -22,14 +22,16 @@
 import 'dart:io' if (kIsWeb) 'dart:html';
 import 'dart:ui';
 import 'package:audio_waveforms/audio_waveforms.dart' show DurationExtension;
+import 'package:chatview/src/extensions/input_text_fieldController.dart';
 import 'package:chatview/src/widgets/chatui_textfield.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:chatview/chatview.dart';
 import 'package:chatview/src/extensions/extensions.dart';
 import 'package:chatview/src/utils/package_strings.dart';
+import 'package:audio_waveforms/audio_waveforms.dart';
 
-import '../utils/constants.dart';
+import '../utils/constants/constants.dart';
 
 class SendMessageWidget extends StatefulWidget {
   const SendMessageWidget({
@@ -69,16 +71,20 @@ class SendMessageWidget extends StatefulWidget {
 }
 
 class SendMessageWidgetState extends State<SendMessageWidget> {
-  final _textEditingController = TextEditingController();
-  ReplyMessage _replyMessage = const ReplyMessage();
+  final _textEditingController = InputTextFieldController();
+  final ValueNotifier<ReplyMessage> _replyMessage =
+      ValueNotifier(const ReplyMessage());
+
+  ReplyMessage get replyMessage => _replyMessage.value;
   final _focusNode = FocusNode();
 
-  ChatUser get repliedUser =>
-      widget.chatController.getUserFromId(_replyMessage.replyTo);
+  ChatUser? get repliedUser => replyMessage.replyTo.isNotEmpty
+      ? widget.chatController.getUserFromId(replyMessage.replyTo)
+      : null;
 
-  String get _replyTo => _replyMessage.replyTo == currentUser?.id
+  String get _replyTo => replyMessage.replyTo == currentUser?.id
       ? PackageStrings.you
-      : repliedUser.name;
+      : repliedUser?.name ?? '';
 
   ChatUser? currentUser;
 
@@ -92,12 +98,13 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final replyTitle = "${PackageStrings.replyTo} $_replyTo";
     return widget.sendMessageBuilder != null
         ? Positioned(
             right: 0,
             left: 0,
             bottom: 0,
-            child: widget.sendMessageBuilder!(_replyMessage),
+            child: widget.sendMessageBuilder!(replyMessage),
           )
         : Align(
             alignment: Alignment.bottomCenter,
@@ -123,156 +130,170 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
                       bottomPadding4 + 2,
                       bottomPadding4,
                       bottomPadding4 + 3,
-                      _bottomPadding ,
+                      _bottomPadding,
                     ),
                     child: Stack(
                       alignment: Alignment.bottomCenter,
                       children: [
-                        if (_replyMessage.message.isNotEmpty)
-                          Container(
-                            decoration: BoxDecoration(
-                              color: widget.sendMessageConfig
-                                      ?.textFieldBackgroundColor ??
-                                  Colors.white,
-                              borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(14)),
-                            ),
-                            margin: const EdgeInsets.only(
-                              bottom: 17,
-                              right: 0.4,
-                              left: 0.4,
-                            ),
-                            padding: const EdgeInsets.fromLTRB(
-                              leftPadding,
-                              leftPadding,
-                              leftPadding,
-                              30,
-                            ),
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 2),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 4,
-                                horizontal: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: widget
-                                        .sendMessageConfig?.replyDialogColor ??
-                                    Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "${PackageStrings.replyTo} $_replyTo",
-                                        style: TextStyle(
-                                          color: widget.sendMessageConfig
-                                                  ?.replyTitleColor ??
-                                              Colors.deepPurple,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.25,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        constraints: const BoxConstraints(),
-                                        padding: EdgeInsets.zero,
-                                        icon: Icon(
-                                          Icons.close,
-                                          color: widget.sendMessageConfig
-                                                  ?.closeIconColor ??
-                                              Colors.black,
-                                          size: 16,
-                                        ),
-                                        onPressed: _onCloseTap,
-                                      ),
-                                    ],
+                        ValueListenableBuilder<ReplyMessage>(
+                          builder: (_, state, child) {
+                            if (state.message.isNotEmpty) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: widget.sendMessageConfig
+                                          ?.textFieldBackgroundColor ??
+                                      Colors.white,
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(14)),
+                                ),
+                                margin: const EdgeInsets.only(
+                                  bottom: 17,
+                                  right: 0.4,
+                                  left: 0.4,
+                                ),
+                                padding: const EdgeInsets.fromLTRB(
+                                  leftPadding,
+                                  leftPadding,
+                                  leftPadding,
+                                  30,
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                    horizontal: 6,
                                   ),
-                                  _replyMessage.messageType.isVoice
-                                      ? Row(
-                                          children: [
-                                            Icon(
-                                              Icons.mic,
+                                  decoration: BoxDecoration(
+                                    color: widget.sendMessageConfig
+                                            ?.replyDialogColor ??
+                                        Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "${PackageStrings.replyTo} $_replyTo",
+                                            style: TextStyle(
                                               color: widget.sendMessageConfig
-                                                  ?.micIconColor,
+                                                      ?.replyTitleColor ??
+                                                  Colors.deepPurple,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.25,
                                             ),
-                                            const SizedBox(width: 4),
-                                            if (_replyMessage
-                                                    .voiceMessageDuration !=
-                                                null)
-                                              Text(
-                                                _replyMessage
-                                                    .voiceMessageDuration!
-                                                    .toHHMMSS(),
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: widget
-                                                          .sendMessageConfig
-                                                          ?.replyMessageColor ??
-                                                      Colors.black,
-                                                ),
-                                              ),
-                                          ],
-                                        )
-                                      : _replyMessage.messageType.isImage
+                                          ),
+                                          IconButton(
+                                            constraints: const BoxConstraints(),
+                                            padding: EdgeInsets.zero,
+                                            icon: Icon(
+                                              Icons.close,
+                                              color: widget.sendMessageConfig
+                                                      ?.closeIconColor ??
+                                                  Colors.black,
+                                              size: 16,
+                                            ),
+                                            onPressed: _onCloseTap,
+                                          ),
+                                        ],
+                                      ),
+                                      _replyMessage.value.messageType.isVoice
                                           ? Row(
                                               children: [
                                                 Icon(
-                                                  Icons.photo,
-                                                  size: 20,
+                                                  Icons.mic,
                                                   color: widget
-                                                          .sendMessageConfig
-                                                          ?.replyMessageColor ??
-                                                      Colors.grey.shade700,
+                                                      .sendMessageConfig
+                                                      ?.micIconColor,
                                                 ),
-                                                Text(
-                                                  PackageStrings.photo,
-                                                  style: TextStyle(
-                                                    color: widget
-                                                            .sendMessageConfig
-                                                            ?.replyMessageColor ??
-                                                        Colors.black,
+                                                const SizedBox(width: 4),
+                                                if (_replyMessage.value
+                                                        .voiceMessageDuration !=
+                                                    null)
+                                                  Text(
+                                                    _replyMessage.value
+                                                        .voiceMessageDuration!
+                                                        .toHHMMSS(),
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: widget
+                                                              .sendMessageConfig
+                                                              ?.replyMessageColor ??
+                                                          Colors.black,
+                                                    ),
                                                   ),
-                                                ),
                                               ],
                                             )
-                                          : _replyMessage.messageType.isCustom
-                                              ? Text(
-                                                  _replyMessage.message
-                                                      .split('/')
-                                                      .last,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: widget
-                                                            .sendMessageConfig
-                                                            ?.replyMessageColor ??
-                                                        Colors.black,
-                                                  ),
+                                          : _replyMessage
+                                                  .value.messageType.isImage
+                                              ? Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.photo,
+                                                      size: 20,
+                                                      color: widget
+                                                              .sendMessageConfig
+                                                              ?.replyMessageColor ??
+                                                          Colors.grey.shade700,
+                                                    ),
+                                                    Text(
+                                                      PackageStrings.photo,
+                                                      style: TextStyle(
+                                                        color: widget
+                                                                .sendMessageConfig
+                                                                ?.replyMessageColor ??
+                                                            Colors.black,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 )
-                                              : Text(
-                                                  _replyMessage.message,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: widget
-                                                            .sendMessageConfig
-                                                            ?.replyMessageColor ??
-                                                        Colors.black,
-                                                  ),
-                                                ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                              : _replyMessage.value.messageType
+                                                      .isCustom
+                                                  ? Text(
+                                                      _replyMessage
+                                                          .value.message
+                                                          .split('/')
+                                                          .last,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: widget
+                                                                .sendMessageConfig
+                                                                ?.replyMessageColor ??
+                                                            Colors.black,
+                                                      ),
+                                                    )
+                                                  : Text(
+                                                      _replyMessage
+                                                          .value.message,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: widget
+                                                                .sendMessageConfig
+                                                                ?.replyMessageColor ??
+                                                            Colors.black,
+                                                      ),
+                                                    ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                          valueListenable: _replyMessage,
+                        ),
                         ChatUITextField(
                           focusNode: _focusNode,
                           textEditingController: _textEditingController,
@@ -291,9 +312,49 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
           );
   }
 
+  Widget get _voiceReplyMessageView {
+    return Row(
+      children: [
+        Icon(
+          Icons.mic,
+          color: widget.sendMessageConfig?.micIconColor,
+        ),
+        const SizedBox(width: 4),
+        if (replyMessage.voiceMessageDuration != null)
+          Text(
+            replyMessage.voiceMessageDuration!.toHHMMSS(),
+            style: TextStyle(
+              fontSize: 12,
+              color:
+                  widget.sendMessageConfig?.replyMessageColor ?? Colors.black,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget get _imageReplyMessageView {
+    return Row(
+      children: [
+        Icon(
+          Icons.photo,
+          size: 20,
+          color: widget.sendMessageConfig?.replyMessageColor ??
+              Colors.grey.shade700,
+        ),
+        Text(
+          PackageStrings.photo,
+          style: TextStyle(
+            color: widget.sendMessageConfig?.replyMessageColor ?? Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
+
   void _onRecordingComplete(String? path) {
     if (path != null) {
-      widget.onSendTap.call(path, _replyMessage, MessageType.voice);
+      widget.onSendTap.call(path, replyMessage, MessageType.voice);
       _assignRepliedMessage();
     }
   }
@@ -301,7 +362,7 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
   void _onImageSelected(String imagePath, String error) {
     debugPrint('Call in Send Message Widget');
     if (imagePath.isNotEmpty) {
-      widget.onSendTap.call(imagePath, _replyMessage, MessageType.image);
+      widget.onSendTap.call(imagePath, _replyMessage.value, MessageType.image);
       _assignRepliedMessage();
     }
   }
@@ -309,14 +370,14 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
   void _onFileSelected(String filePath, String error) {
     debugPrint('Call in Send Message Widget');
     if (filePath.isNotEmpty) {
-      widget.onSendTap.call(filePath, _replyMessage, MessageType.custom);
+      widget.onSendTap.call(filePath, _replyMessage.value, MessageType.custom);
       _assignRepliedMessage();
     }
   }
 
   void _assignRepliedMessage() {
-    if (_replyMessage.message.isNotEmpty) {
-      setState(() => _replyMessage = const ReplyMessage());
+    if (replyMessage.message.isNotEmpty) {
+      _replyMessage.value = const ReplyMessage();
     }
   }
 
@@ -325,7 +386,7 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
         !_textEditingController.text.startsWith('\n')) {
       widget.onSendTap.call(
         _textEditingController.text.trim(),
-        _replyMessage,
+        replyMessage,
         MessageType.text,
       );
       _assignRepliedMessage();
@@ -335,23 +396,21 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
 
   void assignReplyMessage(Message message) {
     if (currentUser != null) {
-      setState(() {
-        _replyMessage = ReplyMessage(
-          message: message.message,
-          replyBy: currentUser!.id,
-          replyTo: message.sendBy,
-          messageType: message.messageType,
-          messageId: message.id,
-          voiceMessageDuration: message.voiceMessageDuration,
-        );
-      });
+      _replyMessage.value = ReplyMessage(
+        message: message.message,
+        replyBy: currentUser!.id,
+        replyTo: message.sendBy,
+        messageType: message.messageType,
+        messageId: message.id,
+        voiceMessageDuration: message.voiceMessageDuration,
+      );
     }
     FocusScope.of(context).requestFocus(_focusNode);
-    if (widget.onReplyCallback != null) widget.onReplyCallback!(_replyMessage);
+    if (widget.onReplyCallback != null) widget.onReplyCallback!(replyMessage);
   }
 
   void _onCloseTap() {
-    setState(() => _replyMessage = const ReplyMessage());
+    _replyMessage.value = const ReplyMessage();
     if (widget.onReplyCloseCallback != null) widget.onReplyCloseCallback!();
   }
 
@@ -367,6 +426,7 @@ class SendMessageWidgetState extends State<SendMessageWidget> {
   void dispose() {
     _textEditingController.dispose();
     _focusNode.dispose();
+    _replyMessage.dispose();
     super.dispose();
   }
 }

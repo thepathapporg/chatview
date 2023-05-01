@@ -19,9 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import 'package:flutter/material.dart';
 import 'package:chatview/src/models/reaction_popup_configuration.dart';
-import 'package:chatview/src/utils/constants.dart';
+import 'package:flutter/material.dart';
+import 'package:chatview/src/utils/constants/constants.dart';
 
 import '../values/typedefs.dart';
 import 'emoji_picker_widget.dart';

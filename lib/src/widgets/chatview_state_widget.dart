@@ -1,5 +1,6 @@
 import 'package:chatview/chatview.dart';
 import 'package:chatview/src/extensions/extensions.dart';
+import 'package:chatview/src/values/enumaration.dart';
 import 'package:flutter/material.dart';
 
 class ChatViewStateWidget extends StatelessWidget {
