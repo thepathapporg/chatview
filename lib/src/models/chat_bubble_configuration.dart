@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import 'package:chatview/src/models/receipts_widget_config.dart';
 import 'package:flutter/material.dart';
 
 import '../values/typedefs.dart';
@@ -47,9 +46,7 @@ class ChatBubbleConfiguration {
   /// Provides callback when user tap twice on chat bubble.
   final MessageCallBack? onDoubleTap;
 
-  final ReceiptsWidgetConfig? receiptsWidgetConfig;
-
-  const ChatBubbleConfiguration({
+  ChatBubbleConfiguration({
     this.padding,
     this.margin,
     this.maxWidth,
@@ -57,6 +54,5 @@ class ChatBubbleConfiguration {
     this.inComingChatBubbleConfig,
     this.outgoingChatBubbleConfig,
     this.onDoubleTap,
-    this.receiptsWidgetConfig,
   });
 }

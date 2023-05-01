@@ -50,7 +50,7 @@ class LinkPreviewConfiguration {
   /// Provides callback when message detect url in message.
   final StringCallback? onUrlDetect;
 
-  const LinkPreviewConfiguration({
+  LinkPreviewConfiguration({
     this.onUrlDetect,
     this.loadingColor,
     this.backgroundColor,

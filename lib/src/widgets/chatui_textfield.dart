@@ -23,18 +23,13 @@ import 'dart:convert';
 import 'dart:io' show File, Platform;
 
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:chatview/src/values/enumaration.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../chatview.dart';
-import 'dart:async';
-
-import 'package:chatview/src/utils/constants/constants.dart';
-
-import '../utils/debounce.dart';
+import '../utils/constants.dart';
 import '../utils/package_strings.dart';
 
 class ChatUITextField extends StatefulWidget {
@@ -75,21 +70,21 @@ class ChatUITextField extends StatefulWidget {
 }
 
 class _ChatUITextFieldState extends State<ChatUITextField> {
-  final ValueNotifier<String> _inputText = ValueNotifier('');
+  String _inputText = '';
 
   final ImagePicker _imagePicker = ImagePicker();
 
   RecorderController? controller;
 
-  ValueNotifier<bool> isRecording = ValueNotifier(false);
+  bool isRecording = false;
 
   SendMessageConfiguration? get sendMessageConfig => widget.sendMessageConfig;
 
   VoiceRecordingConfiguration? get voiceRecordingConfig =>
       widget.sendMessageConfig?.voiceRecordingConfiguration;
 
-  ImagePickerIconsConfiguration? get imagePickerIconsConfig =>
-      sendMessageConfig?.imagePickerIconsConfig;
+  ImagePickerConfiguration? get imagePickerConfig =>
+      sendMessageConfig?.imagePickerConfig;
 
   TextFieldConfiguration? get textFieldConfig =>
       sendMessageConfig?.textFieldConfig;
@@ -100,19 +95,9 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
             BorderRadius.circular(textFieldBorderRadius),
       );
 
-  ValueNotifier<TypeWriterStatus> composingStatus =
-      ValueNotifier(TypeWriterStatus.typed);
-
-  late Debouncer debouncer;
-
   @override
   void initState() {
-    attachListeners();
-    debouncer = Debouncer(
-        sendMessageConfig?.textFieldConfig?.compositionThresholdTime ??
-            const Duration(seconds: 1));
     super.initState();
-
     if (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android) {
       controller = RecorderController();
@@ -120,24 +105,9 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
   }
 
   @override
-  void dispose() {
-    debouncer.dispose();
-    composingStatus.dispose();
-    isRecording.dispose();
-    _inputText.dispose();
-    super.dispose();
-  }
-
-  void attachListeners() {
-    composingStatus.addListener(() {
-      widget.sendMessageConfig?.textFieldConfig?.onMessageTyping
-          ?.call(composingStatus.value);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding:
           textFieldConfig?.padding ?? const EdgeInsets.symmetric(horizontal: 6),
       margin: textFieldConfig?.margin,
@@ -150,227 +120,193 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
             BorderRadius.circular(textFieldBorderRadius),
         color: sendMessageConfig?.textFieldBackgroundColor ?? Colors.white,
       ),
-      child: ValueListenableBuilder<bool>(
-        valueListenable: isRecording,
-        builder: (_, isRecording, child) {
-          return Row(
-            mainAxisSize: isRecording && controller != null
-                ? MainAxisSize.max
-                : MainAxisSize.min,
-            children: [
-              if (isRecording && controller != null) ...[
-                ClipRRect(
-                  borderRadius: textFieldConfig?.borderRadius ??
-                      BorderRadius.circular(textFieldBorderRadius),
-                  child: AudioWaveforms(
-                    size: Size(MediaQuery.of(context).size.width * 0.7, 50),
-                    recorderController: controller!,
-                    margin: voiceRecordingConfig?.margin,
-                    padding: voiceRecordingConfig?.padding ??
-                        const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: voiceRecordingConfig?.decoration ??
-                        BoxDecoration(
-                          color: voiceRecordingConfig?.backgroundColor,
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                    waveStyle: voiceRecordingConfig?.waveStyle ??
-                        WaveStyle(
-                          extendWaveform: true,
-                          showMiddleLine: false,
-                          waveColor:
-                              voiceRecordingConfig?.waveStyle?.waveColor ??
-                                  Colors.black,
-                        ),
-                  ),
-                ),
-                const Spacer(),
-              ] else
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!isRecording) ...[
-                      IconButton(
-                        onPressed: () => Platform.isIOS
-                            ? cupertinoImageSelector()
-                            : androidImageSelector(),
-                        icon: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: const Color(0xffF7F7F7),
-                          child: imagePickerIconsConfig
-                                  ?.galleryImagePickerIcon ??
-                              Icon(
-                                Icons.image,
-                                color: imagePickerIconsConfig?.galleryIconColor,
-                              ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => _onFilePickerPressed(),
-                        icon: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: const Color(0xffF7F7F7),
-                          child: imagePickerIconsConfig
-                                  ?.cameraImagePickerIcon ??
-                              Icon(
-                                Icons.file_open,
-                                color: imagePickerIconsConfig?.cameraIconColor,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              if (!isRecording)
-                Expanded(
-                  child: TextField(
-                    focusNode: widget.focusNode,
-                    controller: widget.textEditingController,
-                    style: textFieldConfig?.textStyle ??
-                        const TextStyle(
-                          color: Colors.white,
-                        ),
-                    maxLines: textFieldConfig?.maxLines ?? 5,
-                    minLines: textFieldConfig?.minLines ?? 1,
-                    keyboardType: textFieldConfig?.textInputType,
-                    inputFormatters: textFieldConfig?.inputFormatters,
-                    onChanged: _onChanged,
-                    textCapitalization: textFieldConfig?.textCapitalization ??
-                        TextCapitalization.sentences,
-                    decoration: InputDecoration(
-                      hintText:
-                          textFieldConfig?.hintText ?? PackageStrings.message,
-                      fillColor: sendMessageConfig?.textFieldBackgroundColor ??
-                          Colors.white,
-                      filled: true,
-                      hintStyle: textFieldConfig?.hintStyle ??
-                          TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.grey.shade600,
-                            letterSpacing: 0.25,
+      child: Row(
+        mainAxisSize: isRecording && controller != null
+            ? MainAxisSize.max
+            : MainAxisSize.min,
+        children: [
+          if (isRecording && controller != null) ...[
+            ClipRRect(
+              borderRadius: textFieldConfig?.borderRadius ??
+                  BorderRadius.circular(textFieldBorderRadius),
+              child: AudioWaveforms(
+                size: Size(MediaQuery.of(context).size.width * 0.7, 50),
+                recorderController: controller!,
+                margin: voiceRecordingConfig?.margin,
+                padding: voiceRecordingConfig?.padding ??
+                    const EdgeInsets.symmetric(horizontal: 8),
+                decoration: voiceRecordingConfig?.decoration ??
+                    BoxDecoration(
+                      color: voiceRecordingConfig?.backgroundColor,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                waveStyle: voiceRecordingConfig?.waveStyle ??
+                    WaveStyle(
+                      extendWaveform: true,
+                      showMiddleLine: false,
+                      waveColor: voiceRecordingConfig?.waveStyle?.waveColor ??
+                          Colors.black,
+                    ),
+              ),
+            ),
+            const Spacer(),
+          ] else
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!isRecording) ...[
+                  IconButton(
+                    onPressed: () => Platform.isIOS
+                        ? cupertinoImageSelector()
+                        : androidImageSelector(),
+                    icon: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: const Color(0xffF7F7F7),
+                      child: imagePickerConfig?.galleryImagePickerIcon ??
+                          Icon(
+                            Icons.image,
+                            color: imagePickerConfig?.galleryIconColor,
                           ),
-                      contentPadding: textFieldConfig?.contentPadding ??
-                          const EdgeInsets.symmetric(horizontal: 6),
-                      border: _outLineBorder,
-                      focusedBorder: _outLineBorder,
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.transparent),
-                        borderRadius: textFieldConfig?.borderRadius ??
-                            BorderRadius.circular(textFieldBorderRadius),
-                      ),
                     ),
                   ),
-                ),
-              ValueListenableBuilder<String>(
-                valueListenable: _inputText,
-                builder: (_, inputTextValue, child) {
-                  if (inputTextValue.isNotEmpty) {
-                    return IconButton(
-                      color: sendMessageConfig?.defaultSendButtonColor ??
-                          Colors.green,
-                      onPressed: () {
-                        widget.onPressed();
-                        setState(() => inputTextValue = '');
-                      },
-                      icon: sendMessageConfig?.sendButtonIcon ??
-                          const Icon(Icons.send),
-                    );
-                  } else {
-                    if (widget.sendMessageConfig?.allowRecordingVoice ??
-                        true &&
-                            Platform.isIOS &&
-                            Platform.isAndroid &&
-                            !kIsWeb) {
-                      return IconButton(
-                        onPressed: _recordOrStop,
-                        icon: (isRecording
-                                ? voiceRecordingConfig?.micIcon
-                                : voiceRecordingConfig?.stopIcon) ??
-                            Icon(isRecording ? Icons.stop : Icons.mic),
-                        color: voiceRecordingConfig?.recorderIconColor,
-                      );
-                    }
-                    return const SizedBox();
-                  }
-                },
-              ),
-              if (_inputText.value.isEmpty)
-                if (widget.sendMessageConfig?.allowRecordingVoice ??
-                    true && Platform.isIOS && Platform.isAndroid) ...[
                   IconButton(
-                    constraints: const BoxConstraints(maxWidth: 35),
-                    onPressed: _recordOrStop,
-                    icon: (isRecording
-                            ? voiceRecordingConfig?.micIcon
-                            : voiceRecordingConfig?.stopIcon) ??
-                        Icon(isRecording ? Icons.stop : Icons.mic),
-                    color: voiceRecordingConfig?.recorderIconColor,
+                    onPressed: () => _onFilePickerPressed(),
+                    icon: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: const Color(0xffF7F7F7),
+                      child: imagePickerConfig?.cameraImagePickerIcon ??
+                          Icon(
+                            Icons.file_open,
+                            color: imagePickerConfig?.cameraIconColor,
+                          ),
+                    ),
                   ),
-                  const SizedBox(
-                    width: 10,
+                ],
+              ],
+            ),
+          if (!isRecording)
+            Expanded(
+              child: TextField(
+                focusNode: widget.focusNode,
+                controller: widget.textEditingController,
+                style: textFieldConfig?.textStyle ??
+                    const TextStyle(
+                      color: Colors.white,
+                    ),
+                maxLines: textFieldConfig?.maxLines ?? 5,
+                minLines: textFieldConfig?.minLines ?? 1,
+                keyboardType: textFieldConfig?.textInputType,
+                inputFormatters: textFieldConfig?.inputFormatters,
+                onChanged: _onChanged,
+                textCapitalization: textFieldConfig?.textCapitalization ??
+                    TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  hintText: textFieldConfig?.hintText ?? PackageStrings.message,
+                  fillColor: sendMessageConfig?.textFieldBackgroundColor ??
+                      Colors.white,
+                  filled: true,
+                  hintStyle: textFieldConfig?.hintStyle ??
+                      TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey.shade600,
+                        letterSpacing: 0.25,
+                      ),
+                  contentPadding: textFieldConfig?.contentPadding ??
+                      const EdgeInsets.symmetric(horizontal: 6),
+                  border: _outLineBorder,
+                  focusedBorder: _outLineBorder,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.transparent),
+                    borderRadius: textFieldConfig?.borderRadius ??
+                        BorderRadius.circular(textFieldBorderRadius),
                   ),
-                ]
-            ],
-          );
-        },
+                ),
+              ),
+            ),
+          if (_inputText.isNotEmpty)
+            IconButton(
+              color: sendMessageConfig?.defaultSendButtonColor ?? Colors.green,
+              onPressed: () {
+                widget.onPressed();
+                setState(() => _inputText = '');
+              },
+              icon: sendMessageConfig?.sendButtonIcon ?? const Icon(Icons.send),
+            ),
+          if (_inputText.isEmpty)
+            if (widget.sendMessageConfig?.allowRecordingVoice ??
+                true && Platform.isIOS && Platform.isAndroid) ...[
+              IconButton(
+                constraints: const BoxConstraints(maxWidth: 35),
+                onPressed: _recordOrStop,
+                icon: (isRecording
+                        ? voiceRecordingConfig?.micIcon
+                        : voiceRecordingConfig?.stopIcon) ??
+                    Icon(isRecording ? Icons.stop : Icons.mic),
+                color: voiceRecordingConfig?.recorderIconColor,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+            ]
+        ],
       ),
     );
   }
 
   void androidImageSelector() {
     showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(15),
+        isScrollControlled: true,
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(15),
+          ),
         ),
-      ),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      builder: (builder) {
-        return Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: SingleChildScrollView(
-                  child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    'Select image source',
-                    style: imagePickerIconsConfig?.textStyle?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.grey,
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        builder: (builder) {
+          return Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                    child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  ListTile(
-                    onTap: () => _onIconPressed(ImageSource.camera),
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      '📸 Camera',
-                      style: imagePickerIconsConfig?.textStyle,
+                    Text(
+                      'Select image source',
+                      style: imagePickerConfig?.textStyle?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                  ListTile(
-                    onTap: () => _onIconPressed(ImageSource.gallery),
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      '🖼️ Gallery',
-                      style: imagePickerIconsConfig?.textStyle,
+                    ListTile(
+                      onTap: () => _onIconPressed(ImageSource.camera),
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        '📸 Camera',
+                        style: imagePickerConfig?.textStyle,
+                      ),
                     ),
-                  ),
-                ],
-              ))),
-        );
-      },
-    );
+                    ListTile(
+                      onTap: () => _onIconPressed(ImageSource.gallery),
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        '🖼️ Gallery',
+                        style: imagePickerConfig?.textStyle,
+                      ),
+                    ),
+                  ],
+                ))),
+          );
+        });
   }
 
   void cupertinoImageSelector() {
@@ -379,21 +315,21 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
       builder: (context) => CupertinoActionSheet(
         title: Text(
           'Select image source',
-          style: imagePickerIconsConfig?.textStyle,
+          style: imagePickerConfig?.textStyle,
         ),
         actions: [
           CupertinoActionSheetAction(
             onPressed: () => _onIconPressed(ImageSource.camera),
             child: Text(
               'Camera',
-              style: imagePickerIconsConfig?.textStyle,
+              style: imagePickerConfig?.textStyle,
             ),
           ),
           CupertinoActionSheetAction(
             onPressed: () => _onIconPressed(ImageSource.gallery),
             child: Text(
               'Gallery',
-              style: imagePickerIconsConfig?.textStyle,
+              style: imagePickerConfig?.textStyle,
             ),
           ),
         ],
@@ -401,7 +337,7 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
           onPressed: () => Navigator.pop(context),
           child: Text(
             'Cancel',
-            style: imagePickerIconsConfig?.textStyle?.copyWith(
+            style: imagePickerConfig?.textStyle?.copyWith(
               color: Colors.red,
               fontWeight: FontWeight.w700,
             ),
@@ -433,12 +369,12 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
           defaultTargetPlatform == TargetPlatform.android,
       "Voice messages are only supported with android and ios platform",
     );
-    if (!isRecording.value) {
+    if (!isRecording) {
       await controller?.record();
-      isRecording.value = true;
+      isRecording = true;
     } else {
       final path = await controller?.stop();
-      isRecording.value = false;
+      isRecording = false;
       widget.onRecordingComplete(path);
     }
     setState(() {});
@@ -466,12 +402,5 @@ class _ChatUITextFieldState extends State<ChatUITextField> {
     }
   }
 
-  void _onChanged(String inputText) {
-    debouncer.run(() {
-      composingStatus.value = TypeWriterStatus.typed;
-    }, () {
-      composingStatus.value = TypeWriterStatus.typing;
-    });
-    _inputText.value = inputText;
-  }
+  void _onChanged(String inputText) => setState(() => _inputText = inputText);
 }

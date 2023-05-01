@@ -10,8 +10,6 @@ class FeatureActiveConfig {
     this.enablePagination = false,
     this.enableChatSeparator = true,
     this.enableDoubleTapToLike = true,
-    this.lastSeenAgoBuilderVisibility = true,
-    this.receiptsBuilderVisibility = true,
   });
 
   /// Used for enable/disable swipe to reply.
@@ -43,10 +41,4 @@ class FeatureActiveConfig {
 
   /// Used for enable/disable double tap to like message.
   final bool enableDoubleTapToLike;
-
-  /// Controls the visibility of message seen ago receipts default is true
-  final bool lastSeenAgoBuilderVisibility;
-
-  /// Controls the visibility of the message [receiptsBuilder]
-  final bool receiptsBuilderVisibility;
 }
