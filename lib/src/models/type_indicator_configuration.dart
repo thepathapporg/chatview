@@ -34,7 +34,7 @@ class TypeIndicatorConfiguration {
   /// Used to give color of light circle dots.
   final Color? flashingCircleBrightColor;
 
-  const TypeIndicatorConfiguration({
+  TypeIndicatorConfiguration({
     this.indicatorSize,
     this.indicatorSpacing,
     this.flashingCircleDarkColor,

@@ -67,17 +67,11 @@ class _ChatScreenState extends State<ChatScreen> {
     ],
   );
 
-  void _showHideTypingIndicator() {
-    _chatController.setTypingIndicator = !_chatController.showTypingIndicator;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ChatView(
-        isLastPage: true,
         featureActiveConfig: const FeatureActiveConfig(
-          enableTextField: true,
           enableDoubleTapToLike: false,
           enableReactionPopup: false,
           enableOtherUserProfileAvatar: false,
@@ -85,210 +79,181 @@ class _ChatScreenState extends State<ChatScreen> {
           enableReplySnackBar: false,
           enableSwipeToReply: false,
         ),
-        repliedMessageConfig: RepliedMessageConfiguration(
-            fileIconWidget: const Icon(Icons.file_copy)),
-        reactionPopupConfig: ChatConfig.reactionPopupConfig,
-        showTypingIndicator: false,
-        typeIndicatorConfig: ChatConfig.typeIndicatorConfiguration,
-        loadingWidget: const CircularProgressIndicator(),
-        appBar: ChatViewAppBar(
-          backGroundColor: Colors.white,
-          backArrowColor: Colors.grey,
-          userStatusTextStyle: const TextStyle(
-            fontWeight: FontWeight.w400,
-            fontSize: 13,
-            color: Colors.green,
-            fontFamily: 'Satoshi',
-          ),
-          showLeading: true,
-          chatTitleTextStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-            fontFamily: 'Satoshi',
-          ),
-          profileWidget: GestureDetector(
-              onTap: () {
-                // Get.to(
-                //   () => const MemberUserChatInfoScreen(),
-                // );
-              },
-              child: const CircleAvatar()),
-          chatTitle: 'Samuel',
-          userStatus: "Online",
-          elevation: 0.3,
-          actions: const [
-            // GestureDetector(
-            //   onTap: () => showReportUser(),
-            //   child: SvgPicture.asset(
-            //     AppImages.guard,
-            //     height: 16,
-            //     width: 16,
-            //   ),
-            // ),
-            SizedBox(),
-          ],
-        ),
-        swipeToReplyConfig: const SwipeToReplyConfiguration(
-          animationDuration: Duration(milliseconds: 150),
-        ),
-        messageConfig: MessageConfiguration(
-          imageMessageConfig: ImageMessageConfiguration(
-              padding: const EdgeInsets.only(bottom: 2, top: 2),
-              // errorImagePlaceholder: SvgPicture.asset(
-              //   AppImages.place_holder,
-              //   fit: BoxFit.cover,
-              // ),
-              // loadingImagePlaceholder: const FadeShimmer(
-              //   height: double.infinity,
-              //   width: double.infinity,
-              //   highlightColor: Color(0xffEDEEF3),
-              //   baseColor: Color(0xffAAABB0),
-              //   radius: 16,
-              //   fadeTheme: FadeTheme.light,
-              // ),
-              // onTap: (imageUrl) {
-              //   final imageProvider =
-              //       Image(image: CachedNetworkImageProvider(imageUrl)).image;
-              //   showImageViewer(
-              //     context,
-              //     imageProvider,
-              //     swipeDismissible: true,
-              //     doubleTapZoomable: true,
-              //   );
-              // },
-              shareIconConfig: ShareIconConfiguration(
-                defaultIconColor: Colors.white,
-                defaultIconBackgroundColor: Colors.white,
-              )),
-          customMessageBuilder: (message) {
-            // var ex = message.extras;
-            // var fileName = ex['attachment_name'].toString();
-            // var a = ex['attachment_size'].toString();
-            // String size = Utils.formatFileSize(int.parse(a));
-            return Align(
-                alignment: message.sendBy == currentUser.id.toString()
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: GestureDetector(
-                    onTap: () {
-                      // openFile(url: message.message, fileName: fileName);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      margin: const EdgeInsets.only(right: 5),
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.green,
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.file_copy),
-                          const SizedBox(),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  'File name',
-                                  softWrap: true,
-                                  // maxLine: 1,
-                                  // textColor: message.sendBy ==
-                                  //                                                       .currentUserProfileController
-                                  //             .userId
-                                  //             .toString()
-                                  //     ? Colors.white10
-                                  //     : Colors.black,
-                                ),
-                                SizedBox(),
-                                Text(
-                                  '303Kb',
-                                  softWrap: true,
-                                  // textColor: message.sendBy ==
-                                  //                                                       .currentUserProfileController
-                                  //             .userId
-                                  //             .toString()
-                                  //     ? Colors.white10
-                                  //     : Colors.black,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )));
-          },
-        ),
         currentUser: currentUser,
         chatController: _chatController,
         onSendTap: _onSendTap,
         chatViewState: ChatViewState.hasMessages,
-        chatBubbleConfig: ChatBubbleConfiguration(
-          margin: const EdgeInsets.only(bottom: 1, top: 1),
-          outgoingChatBubbleConfig: ChatBubble(
-            linkPreviewConfig: ChatConfig.linkPreviewConfig,
-            senderNameTextStyle: const TextStyle(color: Colors.white),
-            textStyle: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-              fontFamily: 'Satoshi',
+        chatViewStateConfig: ChatViewStateConfiguration(
+          loadingWidgetConfig: ChatViewStateWidgetConfiguration(
+            loadingIndicatorColor: theme.outgoingChatBubbleColor,
+          ),
+          onReloadButtonTap: () {},
+        ),
+        typeIndicatorConfig: TypeIndicatorConfiguration(
+          flashingCircleBrightColor: theme.flashingCircleBrightColor,
+          flashingCircleDarkColor: theme.flashingCircleDarkColor,
+        ),
+        appBar: ChatViewAppBar(
+          elevation: theme.elevation,
+          backGroundColor: theme.appBarColor,
+          profilePicture: Data.profileImage,
+          backArrowColor: theme.backArrowColor,
+          chatTitle: "Chat view",
+          chatTitleTextStyle: TextStyle(
+            color: theme.appBarTitleTextStyle,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            letterSpacing: 0.25,
+          ),
+          userStatus: "online",
+          userStatusTextStyle: const TextStyle(color: Colors.grey),
+          actions: [
+            IconButton(
+              onPressed: _onThemeIconTap,
+              icon: Icon(
+                isDarkTheme
+                    ? Icons.brightness_4_outlined
+                    : Icons.dark_mode_outlined,
+                color: theme.themeIconColor,
+              ),
             ),
-            // Receiver's message chat bubble
-            color: Colors.green,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
-              bottomRight: Radius.circular(15),
-              bottomLeft: Radius.circular(15),
+          ],
+        ),
+        chatBackgroundConfig: ChatBackgroundConfiguration(
+          messageTimeIconColor: theme.messageTimeIconColor,
+          messageTimeTextStyle: TextStyle(color: theme.messageTimeTextColor),
+          defaultGroupSeparatorConfig: DefaultGroupSeparatorConfiguration(
+            textStyle: TextStyle(
+              color: theme.chatHeaderColor,
+              fontSize: 17,
             ),
           ),
-          inComingChatBubbleConfig: ChatBubble(
-            linkPreviewConfig: ChatConfig.linkPreviewConfig,
-            senderNameTextStyle: const TextStyle(color: Colors.white),
-            textStyle: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-              fontFamily: 'Satoshi',
-            ),
-            // Receiver's message chat bubble
-            color: Colors.white10,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
-              bottomRight: Radius.circular(15),
-              bottomLeft: Radius.circular(15),
-            ),
-          ),
-        ), //ChatConfig.chatBubbleConfig,
+          backgroundColor: theme.backgroundColor,
+        ),
         sendMessageConfig: SendMessageConfiguration(
-          replyTitleColor: Colors.green,
-          closeIconColor: Colors.red,
-          replyMessageColor: Colors.grey,
-          imagePickerIconsConfig: ImagePickerIconsConfiguration(
+          imagePickerConfig: ImagePickerConfiguration(
             textStyle: const TextStyle(
               fontStyle: FontStyle.normal,
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              fontFamily: 'Satoshi',
             ),
-            galleryImagePickerIcon: const Icon(Icons.photo),
-            cameraImagePickerIcon: const Icon(Icons.camera_alt_rounded),
+            cameraIconColor: theme.cameraIconColor,
+            galleryIconColor: theme.galleryIconColor,
           ),
-          allowRecordingVoice: false,
-          textFieldConfig: const TextFieldConfiguration(
-            contentPadding: EdgeInsets.symmetric(horizontal: 3),
-            hintText: 'Type message here...',
-            // hintStyle: AppTextStyle.hintStyle,
-            // textStyle: AppTextStyle.regularStyle.copyWith(
-            //   fontSize: 15,
-            //   fontWeight: FontWeight.w500,
-            // ),
+          replyMessageColor: theme.replyMessageColor,
+          defaultSendButtonColor: theme.sendButtonColor,
+          replyDialogColor: theme.replyDialogColor,
+          replyTitleColor: theme.replyTitleColor,
+          textFieldBackgroundColor: theme.textFieldBackgroundColor,
+          closeIconColor: theme.closeIconColor,
+          textFieldConfig: TextFieldConfiguration(
+            textStyle: TextStyle(color: theme.textFieldTextColor),
           ),
-          sendButtonIcon: const Icon(Icons.send),
+          micIconColor: theme.replyMicIconColor,
+          voiceRecordingConfiguration: VoiceRecordingConfiguration(
+            backgroundColor: theme.waveformBackgroundColor,
+            recorderIconColor: theme.recordIconColor,
+            waveStyle: WaveStyle(
+              showMiddleLine: false,
+              waveColor: theme.waveColor ?? Colors.white,
+              extendWaveform: true,
+            ),
+          ),
         ),
-        chatBackgroundConfig: ChatConfig.chatBackgroundConfig,
+        chatBubbleConfig: ChatBubbleConfiguration(
+          outgoingChatBubbleConfig: ChatBubble(
+            linkPreviewConfig: LinkPreviewConfiguration(
+              backgroundColor: theme.linkPreviewOutgoingChatColor,
+              bodyStyle: theme.outgoingChatLinkBodyStyle,
+              titleStyle: theme.outgoingChatLinkTitleStyle,
+            ),
+            color: theme.outgoingChatBubbleColor,
+          ),
+          inComingChatBubbleConfig: ChatBubble(
+            linkPreviewConfig: LinkPreviewConfiguration(
+              linkStyle: TextStyle(
+                color: theme.inComingChatBubbleTextColor,
+                decoration: TextDecoration.underline,
+              ),
+              backgroundColor: theme.linkPreviewIncomingChatColor,
+              bodyStyle: theme.incomingChatLinkBodyStyle,
+              titleStyle: theme.incomingChatLinkTitleStyle,
+            ),
+            textStyle: TextStyle(color: theme.inComingChatBubbleTextColor),
+            senderNameTextStyle:
+                TextStyle(color: theme.inComingChatBubbleTextColor),
+            color: theme.inComingChatBubbleColor,
+          ),
+        ),
+        replyPopupConfig: ReplyPopupConfiguration(
+          backgroundColor: theme.replyPopupColor,
+          buttonTextStyle: TextStyle(color: theme.replyPopupButtonColor),
+          topBorderColor: theme.replyPopupTopBorderColor,
+        ),
+        reactionPopupConfig: ReactionPopupConfiguration(
+          shadow: BoxShadow(
+            color: isDarkTheme ? Colors.black54 : Colors.grey.shade400,
+            blurRadius: 20,
+          ),
+          backgroundColor: theme.reactionPopupColor,
+        ),
+        messageConfig: MessageConfiguration(
+          customMessageBuilder: (p0) {
+            return Text('hello ${p0.message}');
+          },
+          messageReactionConfig: MessageReactionConfiguration(
+            backgroundColor: theme.messageReactionBackGroundColor,
+            borderColor: theme.messageReactionBackGroundColor,
+            reactedUserCountTextStyle:
+                TextStyle(color: theme.inComingChatBubbleTextColor),
+            reactionCountTextStyle:
+                TextStyle(color: theme.inComingChatBubbleTextColor),
+            reactionsBottomSheetConfig: ReactionsBottomSheetConfiguration(
+              backgroundColor: theme.backgroundColor,
+              reactedUserTextStyle: TextStyle(
+                color: theme.inComingChatBubbleTextColor,
+              ),
+              reactionWidgetDecoration: BoxDecoration(
+                color: theme.inComingChatBubbleColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: isDarkTheme ? Colors.black12 : Colors.grey.shade200,
+                    offset: const Offset(0, 20),
+                    blurRadius: 40,
+                  )
+                ],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          imageMessageConfig: ImageMessageConfiguration(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+            shareIconConfig: ShareIconConfiguration(
+              defaultIconBackgroundColor: theme.shareIconBackgroundColor,
+              defaultIconColor: theme.shareIconColor,
+            ),
+          ),
+        ),
+        profileCircleConfig:
+            ProfileCircleConfiguration(profileImageUrl: Data.profileImage),
+        repliedMessageConfig: RepliedMessageConfiguration(
+          backgroundColor: theme.repliedMessageColor,
+          verticalBarColor: theme.verticalBarColor,
+          repliedMsgAutoScrollConfig: RepliedMsgAutoScrollConfig(
+            enableHighlightRepliedMsg: true,
+            highlightColor: Colors.pinkAccent.shade100,
+            highlightScale: 1.1,
+          ),
+          textStyle: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.25,
+          ),
+          replyTitleTextStyle: TextStyle(color: theme.repliedTitleTextColor),
+        ),
+        swipeToReplyConfig: SwipeToReplyConfiguration(
+          replyIconColor: theme.swipeToReplyIconColor,
+        ),
       ),
     );
   }
@@ -309,13 +274,6 @@ class _ChatScreenState extends State<ChatScreen> {
         messageType: messageType,
       ),
     );
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _chatController.initialMessageList.last.setStatus =
-          MessageStatus.undelivered;
-    });
-    Future.delayed(const Duration(seconds: 1), () {
-      _chatController.initialMessageList.last.setStatus = MessageStatus.read;
-    });
   }
 
   void _onThemeIconTap() {
@@ -329,85 +287,4 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     });
   }
-}
-
-class ChatConfig {
-  static TypeIndicatorConfiguration typeIndicatorConfiguration =
-      const TypeIndicatorConfiguration(
-    flashingCircleDarkColor: Colors.green,
-    flashingCircleBrightColor: Colors.white,
-    indicatorSize: 5,
-    indicatorSpacing: 5,
-  );
-  static ReactionPopupConfiguration reactionPopupConfig =
-      const ReactionPopupConfiguration(
-    showGlassMorphismEffect: true,
-  );
-  static ChatBackgroundConfiguration chatBackgroundConfig =
-      const ChatBackgroundConfiguration(
-    loadingWidget: CircularProgressIndicator(),
-    padding: EdgeInsets.only(bottom: 18),
-    margin: EdgeInsets.zero,
-    sortEnable: false,
-    backgroundColor: Colors.white,
-    defaultGroupSeparatorConfig: DefaultGroupSeparatorConfiguration(
-      padding: EdgeInsets.only(bottom: 10, top: 10),
-      textStyle: TextStyle(
-        fontWeight: FontWeight.w700,
-        fontSize: 12,
-        color: Colors.black54,
-        fontFamily: 'Satoshi',
-      ),
-    ),
-  );
-  static LinkPreviewConfiguration linkPreviewConfig =
-      const LinkPreviewConfiguration(
-    loadingColor: Colors.green,
-    linkStyle: TextStyle(
-      color: Colors.black,
-      decoration: TextDecoration.underline,
-    ),
-    backgroundColor: Colors.grey,
-    // bodyStyle: AppTextStyle.regularStyle
-    //     .copyWith(fontSize: 13, color: Colors.white),
-    // titleStyle: AppTextStyle.semiBoldStyle
-    //     .copyWith(fontSize: 15, color: Colors.white),
-  );
-
-  static ChatBubbleConfiguration chatBubbleConfig = ChatBubbleConfiguration(
-    outgoingChatBubbleConfig: ChatBubble(
-      linkPreviewConfig: ChatConfig.linkPreviewConfig,
-      senderNameTextStyle: const TextStyle(color: Colors.white),
-      // textStyle: AppTextStyle.regularStyle.copyWith(
-      //   fontSize: 15,
-      //   fontWeight: FontWeight.w600,
-      //   color: Colors.white,
-      // ),
-      // Receiver's message chat bubble
-      color: Colors.green,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(15),
-        topRight: Radius.circular(15),
-        bottomRight: Radius.circular(15),
-        bottomLeft: Radius.circular(15),
-      ),
-    ),
-    inComingChatBubbleConfig: ChatBubble(
-      linkPreviewConfig: ChatConfig.linkPreviewConfig,
-      senderNameTextStyle: const TextStyle(color: Colors.white),
-      // textStyle: AppTextStyle.regularStyle.copyWith(
-      //   fontSize: 15,
-      //   fontWeight: FontWeight.w600,
-      //   color: Colors.tinyDarkY,
-      // ),
-      // Receiver's message chat bubble
-      color: Colors.white,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(15),
-        topRight: Radius.circular(15),
-        bottomRight: Radius.circular(15),
-        bottomLeft: Radius.circular(15),
-      ),
-    ),
-  );
 }

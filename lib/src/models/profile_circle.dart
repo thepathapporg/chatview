@@ -42,7 +42,7 @@ class ProfileCircleConfiguration {
   /// Provides callback when user long press on profile circle.
   final void Function(ChatUser)? onAvatarLongPress;
 
-  const ProfileCircleConfiguration({
+  ProfileCircleConfiguration({
     this.onAvatarTap,
     this.padding,
     this.profileImageUrl,

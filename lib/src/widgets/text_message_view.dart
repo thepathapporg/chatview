@@ -19,14 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import 'package:chatview/src/models/pattern_style.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chatview/src/extensions/extensions.dart';
 import 'package:chatview/src/models/models.dart';
-import 'package:flutter_parsed_text/flutter_parsed_text.dart';
 
-import '../utils/constants/constants.dart';
+import '../utils/constants.dart';
 import 'link_preview.dart';
 import 'reaction_widget.dart';
 
@@ -95,60 +93,13 @@ class TextMessageView extends StatelessWidget {
                   linkPreviewConfig: _linkPreviewConfig,
                   url: textMessage,
                 )
-              : ParsedText(
-                  selectable: false,
-                  text: message.message,
+              : Text(
+                  textMessage,
                   style: _textStyle ??
                       textTheme.bodyMedium!.copyWith(
                         color: Colors.white,
                         fontSize: 16,
                       ),
-                  parse: [
-                    MatchText(
-                      pattern: PatternStyle.bold.pattern,
-                      style: PatternStyle.bold.textStyle,
-                      renderText:
-                          ({required String str, required String pattern}) => {
-                        'display': str.replaceAll(
-                          PatternStyle.bold.from,
-                          PatternStyle.bold.replace,
-                        ),
-                      },
-                    ),
-                    MatchText(
-                      pattern: PatternStyle.italic.pattern,
-                      style: PatternStyle.italic.textStyle,
-                      renderText:
-                          ({required String str, required String pattern}) => {
-                        'display': str.replaceAll(
-                          PatternStyle.italic.from,
-                          PatternStyle.italic.replace,
-                        ),
-                      },
-                    ),
-                    MatchText(
-                      pattern: PatternStyle.lineThrough.pattern,
-                      style: (PatternStyle.lineThrough.textStyle),
-                      renderText:
-                          ({required String str, required String pattern}) => {
-                        'display': str.replaceAll(
-                          PatternStyle.lineThrough.from,
-                          PatternStyle.lineThrough.replace,
-                        ),
-                      },
-                    ),
-                    MatchText(
-                      pattern: PatternStyle.code.pattern,
-                      style: (PatternStyle.code.textStyle),
-                      renderText:
-                          ({required String str, required String pattern}) => {
-                        'display': str.replaceAll(
-                          PatternStyle.code.from,
-                          PatternStyle.code.replace,
-                        ),
-                      },
-                    ),
-                  ],
                 ),
         ),
         if (message.reaction.reactions.isNotEmpty)

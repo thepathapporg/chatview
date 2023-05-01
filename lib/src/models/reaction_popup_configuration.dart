@@ -21,8 +21,6 @@
  */
 import 'package:flutter/material.dart';
 
-import 'models.dart';
-
 class ReactionPopupConfiguration {
   /// Used for background color in reaction pop-up.
   final Color? backgroundColor;
@@ -51,11 +49,7 @@ class ReactionPopupConfiguration {
   /// Provides glass morphism effect configuration.
   final GlassMorphismConfiguration? glassMorphismConfig;
 
-  /// Provides callback when user react on message.
-  final void Function(Message message, String emoji)? userReactionCallback;
-
-  const ReactionPopupConfiguration({
-    this.userReactionCallback,
+  ReactionPopupConfiguration({
     this.showGlassMorphismEffect = false,
     this.backgroundColor,
     this.shadow,
@@ -75,7 +69,7 @@ class EmojiConfiguration {
   /// Used to give size of emoji.
   final double? size;
 
-  const EmojiConfiguration({
+  EmojiConfiguration({
     this.emojiList,
     this.size,
   });
@@ -94,7 +88,7 @@ class GlassMorphismConfiguration {
   /// Used to give border radius of reaction pop-up.
   final double? borderRadius;
 
-  const GlassMorphismConfiguration({
+  GlassMorphismConfiguration({
     this.borderColor,
     this.strokeWidth,
     this.backgroundColor,

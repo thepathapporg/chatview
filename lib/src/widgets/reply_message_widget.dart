@@ -20,12 +20,13 @@
  * SOFTWARE.
  */
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:chatview/chatview.dart';
-import 'package:chatview/src/extensions/extensions.dart';
 import 'package:flutter/material.dart';
+
+import 'package:chatview/src/extensions/extensions.dart';
+import 'package:chatview/src/models/models.dart';
 import 'package:chatview/src/utils/package_strings.dart';
 
-import '../utils/constants/constants.dart';
+import '../utils/constants.dart';
 import 'chat_view_inherited_widget.dart';
 import 'vertical_line.dart';
 

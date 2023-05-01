@@ -50,7 +50,7 @@ class ReplyPopupConfiguration {
   /// Used to give color to top side border of reply snack bar.
   final Color? topBorderColor;
 
-  const ReplyPopupConfiguration({
+  ReplyPopupConfiguration({
     this.buttonTextStyle,
     this.topBorderColor,
     this.onUnsendTap,

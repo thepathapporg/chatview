@@ -50,10 +50,7 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
   late PlayerController controller;
   late StreamSubscription<PlayerState> playerStateSubscription;
 
-  final ValueNotifier<PlayerState> _playerState =
-      ValueNotifier(PlayerState.stopped);
-
-  PlayerState get playerState => _playerState.value;
+  PlayerState playerState = PlayerState.stopped;
 
   PlayerWaveStyle playerWaveStyle = const PlayerWaveStyle(scaleFactor: 70);
 
@@ -68,14 +65,13 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
             playerWaveStyle.getSamplesForWidth(widget.screenWidth * 0.5),
       ).whenComplete(() => widget.onMaxDuration?.call(controller.maxDuration));
     playerStateSubscription = controller.onPlayerStateChanged
-        .listen((state) => _playerState.value = state);
+        .listen((state) => setState(() => playerState = state));
   }
 
   @override
   void dispose() {
     playerStateSubscription.cancel();
     controller.dispose();
-    _playerState.dispose();
     super.dispose();
   }
 
@@ -102,25 +98,21 @@ class _VoiceMessageViewState extends State<VoiceMessageView> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ValueListenableBuilder<PlayerState>(
-                builder: (context, state, child) {
-                  return IconButton(
-                    onPressed: _playOrPause,
-                    icon:
-                        state.isStopped || state.isPaused || state.isInitialised
-                            ? widget.config?.playIcon ??
-                                const Icon(
-                                  Icons.play_arrow,
-                                  color: Colors.white,
-                                )
-                            : widget.config?.pauseIcon ??
-                                const Icon(
-                                  Icons.stop,
-                                  color: Colors.white,
-                                ),
-                  );
-                },
-                valueListenable: _playerState,
+              IconButton(
+                onPressed: _playOrPause,
+                icon: playerState.isStopped ||
+                        playerState.isPaused ||
+                        playerState.isInitialised
+                    ? widget.config?.playIcon ??
+                        const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                        )
+                    : widget.config?.pauseIcon ??
+                        const Icon(
+                          Icons.stop,
+                          color: Colors.white,
+                        ),
               ),
               AudioFileWaveforms(
                 size: Size(widget.screenWidth * 0.50, 60),
