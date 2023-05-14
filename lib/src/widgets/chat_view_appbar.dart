@@ -19,8 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import 'dart:io' if (kIsWeb) 'dart:html';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
 
@@ -124,24 +122,31 @@ class ChatViewAppBar extends StatelessWidget {
                             child: CircleAvatar(
                                 backgroundImage: NetworkImage(profilePicture!)),
                           ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            chatTitle,
-                            style: chatTitleTextStyle ??
-                                const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.25,
-                                ),
-                          ),
-                          if (userStatus != null)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              userStatus!,
-                              style: userStatusTextStyle,
+                              chatTitle,
+                              style: chatTitleTextStyle ??
+                                  const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.25,
+                                  ),
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                        ],
+                            if (userStatus != null)
+                              Text(
+                                userStatus!,
+                                style: userStatusTextStyle,
+                                maxLines: 2,
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
